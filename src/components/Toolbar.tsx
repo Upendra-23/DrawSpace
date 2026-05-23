@@ -37,6 +37,10 @@ const tools: { id: ToolType; label: string; shortcut: string; icon: ReactNode }[
     id: 'eraser', label: 'Eraser (E)', shortcut: 'E',
     icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 20H7.5L3.5 16a2.12 2.12 0 0 1 0-3L15 2l6 6Z"/><path d="M18 13 11 6"/></svg>,
   },
+  {
+    id: 'text', label: 'Text (T)', shortcut: 'T',
+    icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>,
+  },
 ]
 
 const shapeTypes: { id: ShapeType; label: string; icon: ReactNode; shortcut: string }[] = [
@@ -67,6 +71,7 @@ export function Toolbar() {
     tool, setTool,
     shapeType, setShapeType,
     strokeWidth, setStrokeWidth,
+    fontSize, setFontSize,
     color, setColor,
     bgColor, setBgColor,
     theme, toggleTheme,
@@ -165,6 +170,12 @@ export function Toolbar() {
           title={`Stroke width: ${strokeWidth}px`}
         />
         <span className="size-label">{strokeWidth}px</span>
+      </div>
+
+      <div className="toolbar-section">
+        <button className="tool-btn" onClick={() => setFontSize(Math.max(8, fontSize - 2))} onMouseDown={ripple} title="Decrease font size">−</button>
+        <span className="size-label" title={`Font size: ${fontSize}px`}>{fontSize}px</span>
+        <button className="tool-btn" onClick={() => setFontSize(Math.min(96, fontSize + 2))} onMouseDown={ripple} title="Increase font size">+</button>
       </div>
 
       <div className="toolbar-section">

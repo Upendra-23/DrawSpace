@@ -73,6 +73,11 @@ function App() {
             minY = Math.min(minY, el.startPoint.y, el.endPoint.y)
             maxX = Math.max(maxX, el.startPoint.x, el.endPoint.x)
             maxY = Math.max(maxY, el.startPoint.y, el.endPoint.y)
+          } else if (el.type === 'text') {
+            minX = Math.min(minX, el.x)
+            minY = Math.min(minY, el.y)
+            maxX = Math.max(maxX, el.x + el.text.length * el.fontSize * 0.55)
+            maxY = Math.max(maxY, el.y + el.fontSize)
           }
         }
         const ox = cx - (minX + maxX) / 2, oy = cy - (minY + maxY) / 2
@@ -84,6 +89,9 @@ function App() {
           } else if (clone.type === 'shape') {
             clone.startPoint = { x: clone.startPoint.x + ox, y: clone.startPoint.y + oy }
             clone.endPoint = { x: clone.endPoint.x + ox, y: clone.endPoint.y + oy }
+          } else if (clone.type === 'text') {
+            clone.x += ox
+            clone.y += oy
           }
           return clone
         })
@@ -120,6 +128,9 @@ function App() {
         case 'a':
           setTool('shapes')
           setShapeType('arrow')
+          break
+        case 't':
+          setTool('text')
           break
       }
     }

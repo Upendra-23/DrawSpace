@@ -1,4 +1,8 @@
-import type { Point, ShapeType, DrawingElement } from '../types'
+import type { Point, ShapeType, DrawingElement, TextElement } from '../types'
+
+export function estimateTextWidth(text: string, fontSize: number): number {
+  return text.length * fontSize * 0.55
+}
 
 export function drawPath(
   ctx: CanvasRenderingContext2D,
@@ -101,6 +105,39 @@ export function drawShape(
   ctx.restore()
 }
 
+export function formatCanvasFontFamily(fontFamily: string): string {
+  return fontFamily.split(',').map(f => {
+    f = f.trim()
+    const clean = f.replace(/['"]/g, '')
+    if (/\s/.test(clean)) return `"${clean}"`
+    return clean
+  }).join(', ')
+}
+
+export function drawText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  color: string,
+  fontSize: number,
+  fontFamily: string,
+  opacity: number = 1,
+) {
+  if (!text) return
+  const lines = text.split('\n')
+  const lineHeight = fontSize * 1.2
+  ctx.save()
+  ctx.globalAlpha = opacity
+  ctx.fillStyle = color
+  ctx.font = `${fontSize}px ${formatCanvasFontFamily(fontFamily)}`
+  ctx.textBaseline = 'top'
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], x, y + i * lineHeight)
+  }
+  ctx.restore()
+}
+
 function drawArrowhead(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -148,6 +185,18 @@ export function isPointNearElement(point: Point, el: DrawingElement, threshold: 
       }
       return false
 
+    case 'text': {
+      const lines = el.text.split('\n')
+      const lineHeight = el.fontSize * 1.2
+      const w = estimateTextWidth(el.text, el.fontSize)
+      return (
+        point.x >= el.x - threshold &&
+        point.y >= el.y - threshold &&
+        point.x <= el.x + w + threshold &&
+        point.y <= el.y + lines.length * lineHeight + threshold
+      )
+    }
+
     case 'shape': {
       const x1 = Math.min(el.startPoint.x, el.endPoint.x)
       const y1 = Math.min(el.startPoint.y, el.endPoint.y)
@@ -193,6 +242,17 @@ export function isPointNearElement(point: Point, el: DrawingElement, threshold: 
   }
 }
 
+export function getTextBounds(el: TextElement): { x: number; y: number; width: number; height: number } {
+  const lines = el.text.split('\n')
+  const lineHeight = el.fontSize * 1.2
+  return {
+    x: el.x,
+    y: el.y,
+    width: estimateTextWidth(el.text, el.fontSize),
+    height: lines.length * lineHeight,
+  }
+}
+
 type Rect = { x: number; y: number; width: number; height: number }
 
 export function isElementInRect(el: DrawingElement, rect: Rect): boolean {
@@ -213,6 +273,11 @@ export function isElementInRect(el: DrawingElement, rect: Rect): boolean {
       const ew = Math.abs(el.endPoint.x - el.startPoint.x)
       const eh = Math.abs(el.endPoint.y - el.startPoint.y)
       return !(ex + ew < r.x || ex > r.x + r.width || ey + eh < r.y || ey > r.y + r.height)
+    }
+
+    case 'text': {
+      const tb = getTextBounds(el)
+      return !(tb.x + tb.width < r.x || tb.x > r.x + r.width || tb.y + tb.height < r.y || tb.y > r.y + r.height)
     }
 
     default:
