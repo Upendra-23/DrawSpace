@@ -1,0 +1,167 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+:root {
+  /* ── Background System ─────────────────────── */
+  --bg-app: #f0f2f5;
+  --bg-app-secondary: #e8ecf1;
+  --mesh-gradient-1: rgba(99, 102, 241, 0.07);
+  --mesh-gradient-2: rgba(236, 72, 153, 0.05);
+  --mesh-gradient-3: rgba(59, 130, 246, 0.06);
+
+  /* ── Toolbar ───────────────────────────────── */
+  --bg-toolbar: rgba(255, 255, 255, 0.65);
+  --bg-toolbar-border: rgba(255, 255, 255, 0.3);
+  --bg-toolbar-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --bg-toolbar-3d: 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+
+  /* ── Canvas ────────────────────────────────── */
+  --bg-canvas-container: rgba(255, 255, 255, 0.6);
+  --bg-canvas-container-shadow: rgba(0, 0, 0, 0.04);
+  --canvas-border: rgba(255, 255, 255, 0.5);
+  --canvas-glow: 0 0 40px rgba(99, 102, 241, 0.06);
+
+  /* ── Buttons ───────────────────────────────── */
+  --bg-btn: rgba(255, 255, 255, 0.7);
+  --bg-btn-hover: rgba(255, 255, 255, 0.9);
+  --bg-btn-active: #6366f1;
+  --bg-btn-active-hover: #4f46e5;
+  --border-btn: rgba(0, 0, 0, 0.06);
+  --border-btn-hover: rgba(0, 0, 0, 0.1);
+  --shadow-btn: 0 2px 4px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02) inset;
+  --shadow-btn-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04) inset;
+  --shadow-btn-active: 0 0 20px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.2) inset;
+
+  /* ── Text ──────────────────────────────────── */
+  --text-primary: #1a1a2e;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --text-btn: #4b5563;
+  --text-btn-active: #ffffff;
+  --text-danger: #ef4444;
+
+  /* ── Dropdowns ─────────────────────────────── */
+  --bg-dropdown: rgba(255, 255, 255, 0.92);
+  --border-dropdown: rgba(0, 0, 0, 0.06);
+  --shadow-dropdown: 0 12px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  /* ── Selection ─────────────────────────────── */
+  --bg-selection-btn: #6366f1;
+  --bg-selection-btn-hover: #4f46e5;
+  --bg-selection-close: #6b7280;
+  --bg-selection-close-hover: #4b5563;
+  --shadow-selection: 0 0 20px rgba(99, 102, 241, 0.3);
+
+  /* ── Colors ────────────────────────────────── */
+  --color-accent: #6366f1;
+  --color-accent-text: #6366f1;
+  --color-danger: #ef4444;
+  --color-accent-glow: rgba(99, 102, 241, 0.15);
+
+  /* ── Misc ──────────────────────────────────── */
+  --grid-dot: rgba(0, 0, 0, 0.12);
+  --divider: rgba(0, 0, 0, 0.06);
+  --clear-bg: rgba(239, 68, 68, 0.08);
+  --clear-bg-hover: rgba(239, 68, 68, 0.15);
+  --clear-text: #dc2626;
+  --thumb-bg: #6366f1;
+  --track-bg: rgba(0, 0, 0, 0.06);
+  --color-swatch-border: rgba(0, 0, 0, 0.1);
+  --color-dropdown-border: rgba(0, 0, 0, 0.06);
+  --color-custom-border: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] {
+  /* ── Background System ─────────────────────── */
+  --bg-app: #0b0b14;
+  --bg-app-secondary: #11111d;
+  --mesh-gradient-1: rgba(99, 102, 241, 0.08);
+  --mesh-gradient-2: rgba(236, 72, 153, 0.04);
+  --mesh-gradient-3: rgba(59, 130, 246, 0.06);
+
+  /* ── Toolbar ───────────────────────────────── */
+  --bg-toolbar: rgba(18, 18, 28, 0.75);
+  --bg-toolbar-border: rgba(255, 255, 255, 0.06);
+  --bg-toolbar-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --bg-toolbar-3d: 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+
+  /* ── Canvas ────────────────────────────────── */
+  --bg-canvas-container: rgba(14, 14, 24, 0.7);
+  --bg-canvas-container-shadow: rgba(0, 0, 0, 0.4);
+  --canvas-border: rgba(255, 255, 255, 0.04);
+  --canvas-glow: 0 0 40px rgba(99, 102, 241, 0.04);
+
+  /* ── Buttons ───────────────────────────────── */
+  --bg-btn: rgba(255, 255, 255, 0.04);
+  --bg-btn-hover: rgba(255, 255, 255, 0.08);
+  --bg-btn-active: #818cf8;
+  --bg-btn-active-hover: #6366f1;
+  --border-btn: rgba(255, 255, 255, 0.04);
+  --border-btn-hover: rgba(255, 255, 255, 0.1);
+  --shadow-btn: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  --shadow-btn-hover: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --shadow-btn-active: 0 0 20px rgba(129, 140, 248, 0.25), 0 0 0 1px rgba(129, 140, 248, 0.15) inset;
+
+  /* ── Text ──────────────────────────────────── */
+  --text-primary: #e4e4ed;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-btn: #b0b0c0;
+  --text-btn-active: #ffffff;
+  --text-danger: #f87171;
+
+  /* ── Dropdowns ─────────────────────────────── */
+  --bg-dropdown: rgba(22, 22, 36, 0.94);
+  --border-dropdown: rgba(255, 255, 255, 0.06);
+  --shadow-dropdown: 0 12px 48px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  /* ── Selection ─────────────────────────────── */
+  --bg-selection-btn: #818cf8;
+  --bg-selection-btn-hover: #6366f1;
+  --bg-selection-close: #6b7280;
+  --bg-selection-close-hover: #9ca3af;
+  --shadow-selection: 0 0 20px rgba(129, 140, 248, 0.2);
+
+  /* ── Colors ────────────────────────────────── */
+  --color-accent: #818cf8;
+  --color-accent-text: #a5b4fc;
+  --color-danger: #f87171;
+  --color-accent-glow: rgba(129, 140, 248, 0.12);
+
+  /* ── Misc ──────────────────────────────────── */
+  --grid-dot: rgba(255, 255, 255, 0.07);
+  --divider: rgba(255, 255, 255, 0.04);
+  --clear-bg: rgba(248, 113, 113, 0.08);
+  --clear-bg-hover: rgba(248, 113, 113, 0.15);
+  --clear-text: #fca5a5;
+  --thumb-bg: #818cf8;
+  --track-bg: rgba(255, 255, 255, 0.06);
+  --color-swatch-border: rgba(255, 255, 255, 0.08);
+  --color-dropdown-border: rgba(255, 255, 255, 0.04);
+  --color-custom-border: rgba(255, 255, 255, 0.06);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-app);
+  user-select: none;
+  color: var(--text-primary);
+  transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
+}
+
+button {
+  font-family: inherit;
+}
