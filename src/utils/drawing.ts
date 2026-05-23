@@ -57,10 +57,12 @@ export function drawShape(
   ctx.beginPath()
 
   switch (shapeType) {
-    case 'rectangle':
-      ctx.rect(x, y, w, h)
+    case 'rectangle': {
+      const r = Math.min(12, Math.min(w, h) * 0.15)
+      ctx.roundRect(x, y, w, h, r)
       ctx.stroke()
       break
+    }
 
     case 'circle':
       const cx = (start.x + end.x) / 2
