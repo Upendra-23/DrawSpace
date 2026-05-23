@@ -1,6 +1,6 @@
 export type ThemeType = 'light' | 'dark'
 
-export type ToolType = 'pen' | 'shapes' | 'laser' | 'eraser' | 'select' | 'cursor'
+export type ToolType = 'pen' | 'shapes' | 'laser' | 'eraser' | 'select' | 'cursor' | 'text'
 
 export type ShapeType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'triangle'
 
@@ -36,4 +36,15 @@ export interface LaserElement {
   createdAt: number
 }
 
-export type DrawingElement = PathElement | ShapeElement | LaserElement
+export interface TextElement {
+  id: string
+  type: 'text'
+  x: number
+  y: number
+  text: string
+  color: string
+  fontSize: number
+  fontFamily: string
+}
+
+export type DrawingElement = PathElement | ShapeElement | LaserElement | TextElement

@@ -7,6 +7,8 @@ interface DrawingState {
   color: string
   bgColor: string
   strokeWidth: number
+  fontSize: number
+  fontFamily: string
   zoom: number
   panX: number
   panY: number
@@ -22,6 +24,8 @@ interface DrawingState {
   setColor: (color: string) => void
   setBgColor: (color: string) => void
   setStrokeWidth: (width: number) => void
+  setFontSize: (size: number) => void
+  setFontFamily: (family: string) => void
   setZoom: (zoom: number) => void
   setPan: (x: number, y: number) => void
   setTheme: (theme: ThemeType) => void
@@ -49,6 +53,8 @@ export const useStore = create<DrawingState>((set) => ({
   color: '#ffffff',
   bgColor: '#0d0d1a',
   strokeWidth: 3,
+  fontSize: 24,
+  fontFamily: "'Caveat', 'Segoe Print', 'Comic Sans MS', cursive",
   zoom: 1,
   panX: 0,
   panY: 0,
@@ -65,6 +71,8 @@ export const useStore = create<DrawingState>((set) => ({
   setColor: (color) => set({ color }),
   setBgColor: (bgColor) => set({ bgColor }),
   setStrokeWidth: (strokeWidth) => set({ strokeWidth }),
+  setFontSize: (fontSize) => set({ fontSize }),
+  setFontFamily: (fontFamily) => set({ fontFamily }),
   setZoom: (zoom) => set({ zoom: clamp(zoom, 0.1, 10) }),
   setPan: (panX, panY) => set({ panX, panY }),
   setTheme: (theme) => set((state) => {

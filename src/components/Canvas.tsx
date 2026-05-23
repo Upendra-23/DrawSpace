@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useStore } from '../store/useStore'
 import {
-  drawPath, drawShape, isPointNearElement, isElementInRect,
+  drawPath, drawShape, drawText, isPointNearElement, isElementInRect, formatCanvasFontFamily,
 } from '../utils/drawing'
 import type { Point } from '../types'
 
@@ -30,7 +30,20 @@ export function Canvas() {
   const panStart = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null)
   const spaceHeld = useRef(false)
 
+  const textEditPos = useRef<{ screenX: number; screenY: number; worldX: number; worldY: number; width: number; height: number } | null>(null)
+  const textInputRef = useRef<HTMLTextAreaElement>(null)
+  const editingTextEl = useRef<import('../types').TextElement | null>(null)
+  const [isTextEditing, setIsTextEditing] = useState(false)
+
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 })
+  const prevTool = useRef<import('../types').ToolType>('pen')
+  useEffect(() => {
+    const tool = useStore.getState().tool
+    if (prevTool.current === 'text' && tool !== 'text' && isTextEditing) {
+      commitText()
+    }
+    prevTool.current = tool
+  })
 
   useEffect(() => {
     const updateSize = () => {
@@ -130,13 +143,18 @@ export function Canvas() {
     ctx.translate(panX, panY)
     ctx.scale(zoom, zoom)
 
+    const editingId = editingTextEl.current?.id
     for (const el of elements) {
+      if (el.id === editingId) continue
       switch (el.type) {
         case 'path':
           drawPath(ctx, el.points, el.color, el.strokeWidth, 1)
           break
         case 'shape':
           drawShape(ctx, el.shapeType, el.startPoint, el.endPoint, el.color, el.strokeWidth)
+          break
+        case 'text':
+          drawText(ctx, el.text, el.x, el.y, el.color, el.fontSize, el.fontFamily)
           break
       }
     }
@@ -163,6 +181,12 @@ export function Canvas() {
           const w = Math.abs(highlightedEl.endPoint.x - highlightedEl.startPoint.x)
           const h = Math.abs(highlightedEl.endPoint.y - highlightedEl.startPoint.y)
           ctx.strokeRect(x - 4, y - 4, w + 8, h + 8)
+        } else if (highlightedEl.type === 'text') {
+          const lines = highlightedEl.text.split('\n')
+          const lineHeight = highlightedEl.fontSize * 1.2
+          ctx.font = `${highlightedEl.fontSize}px ${formatCanvasFontFamily(highlightedEl.fontFamily)}`
+          const maxW = lines.reduce((w, l) => Math.max(w, ctx.measureText(l).width), 0)
+          ctx.strokeRect(highlightedEl.x - 4, highlightedEl.y - 4, maxW + 8, lines.length * lineHeight + 8)
         }
         ctx.restore()
       }
@@ -269,13 +293,18 @@ export function Canvas() {
     ctx.translate(panX, panY)
     ctx.scale(zoom, zoom)
 
+    const editingId = editingTextEl.current?.id
     for (const el of elements) {
+      if (el.id === editingId) continue
       switch (el.type) {
         case 'path':
           drawPath(ctx, el.points, el.color, el.strokeWidth, 1)
           break
         case 'shape':
           drawShape(ctx, el.shapeType, el.startPoint, el.endPoint, el.color, el.strokeWidth)
+          break
+        case 'text':
+          drawText(ctx, el.text, el.x, el.y, el.color, el.fontSize, el.fontFamily)
           break
       }
     }
@@ -373,6 +402,8 @@ export function Canvas() {
           const cx = (hitEl.startPoint.x + hitEl.endPoint.x) / 2
           const cy = (hitEl.startPoint.y + hitEl.endPoint.y) / 2
           dragOffset.current = { x: point.x - cx, y: point.y - cy }
+        } else if (hitEl.type === 'text') {
+          dragOffset.current = { x: point.x - hitEl.x, y: point.y - hitEl.y }
         }
       }
     }
@@ -400,6 +431,8 @@ export function Canvas() {
             const curCy = (e.startPoint.y + e.endPoint.y) / 2
             const dx = targetX - curCx, dy = targetY - curCy
             return { ...e, startPoint: { x: e.startPoint.x + dx, y: e.startPoint.y + dy }, endPoint: { x: e.endPoint.x + dx, y: e.endPoint.y + dy } }
+          } else if (e.type === 'text') {
+            return { ...e, x: targetX, y: targetY }
           }
           return e
         })
@@ -462,6 +495,40 @@ export function Canvas() {
     redraw()
   }, [])
 
+  function commitText() {
+    const input = textInputRef.current
+    const pos = textEditPos.current
+    if (!input || !pos) return
+    const text = input.value.trim()
+    const existing = editingTextEl.current
+    if (existing) {
+      if (text) {
+        useStore.getState().updateElement(existing.id, (el) => ({ ...el, text }))
+      } else {
+        useStore.getState().removeElements([existing.id])
+      }
+    } else if (text) {
+      useStore.getState().addElement({
+        id: crypto.randomUUID(),
+        type: 'text',
+        x: pos.worldX,
+        y: pos.worldY,
+        text,
+        color: useStore.getState().color,
+        fontSize: useStore.getState().fontSize,
+        fontFamily: useStore.getState().fontFamily,
+      })
+    }
+    redraw()
+    cancelText()
+  }
+
+  function cancelText() {
+    setIsTextEditing(false)
+    textEditPos.current = null
+    editingTextEl.current = null
+  }
+
   // ── Event Handlers ──────────────────────────────────────
 
   const hMDown = useCallback((e: React.MouseEvent) => {
@@ -474,6 +541,39 @@ export function Canvas() {
 
     const tool = useStore.getState().tool
     if (tool === 'laser') { startLaser(); return }
+
+    if (tool === 'text') {
+      if (textEditPos.current) commitText()
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      const sx = e.clientX - rect.left
+      const sy = e.clientY - rect.top
+      const world = screenToWorld(sx, sy)
+      const { elements, zoom, panX, panY } = useStore.getState()
+      const hitEl = elements.findLast((el) => el.type === 'text' && isPointNearElement(world, el, 10)) as import('../types').TextElement | undefined
+      if (hitEl) {
+        editingTextEl.current = hitEl
+        const lines = hitEl.text.split('\n')
+        const lineHeight = hitEl.fontSize * 1.2
+        const tf = document.createElement('canvas').getContext('2d')!
+        tf.font = `${hitEl.fontSize}px ${formatCanvasFontFamily(hitEl.fontFamily)}`
+        const maxW = lines.reduce((w, l) => Math.max(w, tf.measureText(l).width), 0)
+        textEditPos.current = {
+          screenX: hitEl.x * zoom + panX, screenY: hitEl.y * zoom + panY,
+          worldX: hitEl.x, worldY: hitEl.y,
+          width: maxW, height: lines.length * lineHeight,
+        }
+      } else {
+        editingTextEl.current = null
+        textEditPos.current = { screenX: sx, screenY: sy, worldX: world.x, worldY: world.y, width: 100, height: 24 * 1.2 }
+      }
+      setTimeout(() => {
+        setIsTextEditing(true)
+        redraw()
+      }, 0)
+      return
+    }
 
     startDraw(getCanvasPoint(e))
   }, [getCanvasPoint, startDraw])
@@ -611,6 +711,44 @@ export function Canvas() {
           </div>
         )
       })()}
+      {isTextEditing && textEditPos.current && (
+        <textarea
+          ref={textInputRef}
+          className="text-input-overlay"
+          style={{
+            left: textEditPos.current.screenX,
+            top: textEditPos.current.screenY,
+            width: textEditPos.current.width,
+            height: textEditPos.current.height,
+            color: (editingTextEl.current?.color || useStore.getState().color || '#ffffff'),
+            fontSize: `${(editingTextEl.current?.fontSize || useStore.getState().fontSize)}px`,
+            fontFamily: (editingTextEl.current?.fontFamily || useStore.getState().fontFamily),
+          }}
+          rows={1}
+          defaultValue={editingTextEl.current?.text ?? ''}
+          autoFocus
+          onInput={() => {
+            const el = textInputRef.current
+            if (el) {
+              el.style.height = 'auto'
+              el.style.height = el.scrollHeight + 'px'
+              el.style.width = 'auto'
+              el.style.width = el.scrollWidth + 'px'
+              el.scrollLeft = 0
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              commitText()
+            }
+            if (e.key === 'Escape') {
+              cancelText()
+            }
+          }}
+          onBlur={commitText}
+        />
+      )}
       <canvas
         ref={canvasRef}
         width={canvasSize.width}
@@ -640,6 +778,7 @@ function toolCursor(tool: string): string {
     case 'pen': return `url("${penCursorUrl(theme)}") 2 20, crosshair`
     case 'eraser': return 'crosshair'
     case 'cursor': return 'default'
+    case 'text': return 'text'
     default: return 'crosshair'
   }
 }
